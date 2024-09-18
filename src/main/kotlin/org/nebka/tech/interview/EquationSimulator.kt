@@ -3,6 +3,8 @@ package org.nebka.tech.interview
 import io.opentelemetry.api.trace.Tracer
 import io.opentelemetry.context.Context
 import org.slf4j.LoggerFactory
+import org.springframework.beans.factory.annotation.Qualifier
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor
 import org.springframework.stereotype.Component
 import java.math.BigDecimal
 import java.util.concurrent.ExecutorCompletionService
@@ -10,20 +12,15 @@ import java.util.concurrent.Future
 
 @Component
 class EquationSimulator(
-        private val tracer: Tracer,
-        final val threadPoolProviderService: TPPService,
+    private val tracer: Tracer,
+    @Qualifier("threadPoolTaskExecutor") private val poolTaskExecutor: ThreadPoolTaskExecutor,
 ) {
-    private val workerThreadPool = threadPoolProviderService.getFixedThreadPool(
-            parallelism = 400,
-            name = "EquationSimulatorWorker"
-    )
-
     private val logger = LoggerFactory.getLogger(javaClass.simpleName)
 
 
     fun gimmeAnswer(request: EquationRequest): EquationResponse? {
         val ctx = Context.current()
-        val executorService = ExecutorCompletionService<EquationResponse>(workerThreadPool)
+        val executorService = ExecutorCompletionService<EquationResponse>(poolTaskExecutor)
         val futures: MutableList<Future<EquationResponse>> = mutableListOf()
 
         var acceptedResult: EquationResponse? = null
@@ -58,18 +55,18 @@ class EquationSimulator(
 
     private fun brewSomething(): String {
         val drinks = listOf(
-                "Tea",
-                "Coffee",
-                "Beer",
-                "Wine",
-                "Water",
-                "Juice",
-                "Soda",
-                "Milk",
-                "Smoothie",
-                "Whiskey",
-                "Champagne",
-                "Mojito"
+            "Tea",
+            "Coffee",
+            "Beer",
+            "Wine",
+            "Water",
+            "Juice",
+            "Soda",
+            "Milk",
+            "Smoothie",
+            "Whiskey",
+            "Champagne",
+            "Mojito"
         )
 
         return drinks.random()
@@ -77,9 +74,9 @@ class EquationSimulator(
 
     private fun getWeights(): List<String> {
         return listOf(
-                "1.2",
-                "1.244",
-                "1.2556"
+            "1.2",
+            "1.244",
+            "1.2556"
         )
     }
 }
