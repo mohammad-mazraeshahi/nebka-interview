@@ -1,0 +1,25 @@
+spring:
+  lifecycle:
+    timeout-per-shutdown-phase: 30s
+  application:
+    name: interview
+
+server:
+  shutdown: graceful
+
+management:
+  endpoint:
+    info:
+      enabled: true
+  endpoints:
+    web:
+      exposure:
+        include:
+          - health
+          - metrics
+          - prometheus
+          - loggers
+application:
+  pool-size: 400
+  await-time: 30
+  pool-name: "EquationSimulatorWorker"
